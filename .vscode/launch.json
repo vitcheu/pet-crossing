@@ -1,0 +1,90 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "SpringBootAdminApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.admin.SpringBootAdminApplication",
+            "projectName": "spring-petclinic-admin-server",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "ApiGatewayApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.api.ApiGatewayApplication",
+            "projectName": "gateway",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "ConfigServerApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.config.ConfigServerApplication",
+            "projectName": "spring-petclinic-config-server",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "CustomersServiceApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.customers.CustomersServiceApplication",
+            "projectName": "spring-petclinic-customers-service",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "DiscoveryServerApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.discovery.DiscoveryServerApplication",
+            "projectName": "spring-petclinic-discovery-server",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "VetsServiceApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.vets.VetsServiceApplication",
+            "projectName": "spring-petclinic-vets-service",
+            "env": {
+                "DEBUG":false
+            }
+        },
+        {
+            "type": "java",
+            "name": "VisitsServiceApplication",
+            "request": "launch",
+            "mainClass": "org.springframework.samples.petclinic.visits.VisitsServiceApplication",
+            "projectName": "spring-petclinic-visits-service",
+            "env": {
+                "DEBUG":false
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Start Supporting Service",
+            "configurations": [
+                "ConfigServerApplication",
+                "DiscoveryServerApplication",
+                // "SpringBootAdminApplication",
+                // "ApiGatewayApplication"
+            ],
+            "stopAll": true
+        }
+    ]
+}
