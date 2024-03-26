@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: props-service
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+
+# get more detail of connection to database
+logging:
+  level:
+    org:
+      springframework:
+        jdbc: DEBUG
+        data: DEBUG
+        orm: DEBUG
+        jpa: DEBUG
+        hibernate: DEBUG
+        jackson: DEBUG
+    

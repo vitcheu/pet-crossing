@@ -6,72 +6,113 @@
     "configurations": [
         {
             "type": "java",
-            "name": "SpringBootAdminApplication",
+            "name": "Combat",
             "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.admin.SpringBootAdminApplication",
-            "projectName": "spring-petclinic-admin-server",
+            "mainClass": "com.vitcheu.combat.CombatServerApp",
+            "projectName": "combat-server",
             "env": {
-                "DEBUG":false
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "propduction"
+            },
+            "args": [
+                "-ea"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Prop",
+            "request": "launch",
+            "mainClass": "com.vitcheu.prop.PropApp",
+            "projectName": "prop-service",
+            "env": {
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "mysql,production"
             }
         },
         {
             "type": "java",
-            "name": "ApiGatewayApplication",
+            "name": "Owner",
             "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.api.ApiGatewayApplication",
+            "mainClass": "com.vitcheu.owner.OwnerApp",
+            "projectName": "owner-service",
+            "env": {
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": 
+                // "dev"
+                "mysql,production"
+                ,
+                "SPRING_AMQP_DESERIALIZATION_TRUST_ALL": true
+            }
+        },
+        {
+            "type": "java",
+            "name": "Authentication",
+            "request": "launch",
+            "mainClass": "com.vitcheu.authentication.AuthenticationApp",
+            "projectName": "authentication-service",
+            "env": {
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "mysql"
+            }
+        },
+        {
+            "type": "java",
+            "name": "Admin",
+            "request": "launch",
+            "mainClass": "com.vitcheu.admin.SpringBootAdminApplication",
+            "projectName": "admin-server",
+            "env": {
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "mysql"
+            }
+        },
+        {
+            "type": "java",
+            "name": "Gateway",
+            "request": "launch",
+            "mainClass": "com.vitcheu.gateway.GatewayApp",
             "projectName": "gateway",
             "env": {
-                "DEBUG":false
+                "DEBUG": false,
+                "APP.SETTINGS.DEBUG": true
+                // "SPRING.PROFILES.ACTIVE": "docker"
             }
         },
         {
             "type": "java",
-            "name": "ConfigServerApplication",
+            "name": "Config",
             "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.config.ConfigServerApplication",
-            "projectName": "spring-petclinic-config-server",
+            "mainClass": "com.vitcheu.config.ConfigServerApplication",
+            "projectName": "config-server",
             "env": {
-                "DEBUG":false
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "native",
+                "GIT_REPO": "D:\\Desktop\\config"
+            },
+            // "vmArgs": [
+            //     "-Dserver.port=8889"
+            // ]
+        },
+        {
+            "type": "java",
+            "name": "Pet",
+            "request": "launch",
+            "mainClass": "com.vitcheu.pet.PetApp",
+            "projectName": "pet-service",
+            "env": {
+                "DEBUG": false,
+                "SPRING.PROFILES.ACTIVE": "mysql,production"
             }
         },
         {
             "type": "java",
-            "name": "CustomersServiceApplication",
+            "name": "Discovery",
             "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.customers.CustomersServiceApplication",
-            "projectName": "spring-petclinic-customers-service",
+            "mainClass": "com.vitcheu.discovery.DiscoveryServerApplication",
+            "projectName": "discovery-server",
             "env": {
-                "DEBUG":false
-            }
-        },
-        {
-            "type": "java",
-            "name": "DiscoveryServerApplication",
-            "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.discovery.DiscoveryServerApplication",
-            "projectName": "spring-petclinic-discovery-server",
-            "env": {
-                "DEBUG":false
-            }
-        },
-        {
-            "type": "java",
-            "name": "VetsServiceApplication",
-            "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.vets.VetsServiceApplication",
-            "projectName": "spring-petclinic-vets-service",
-            "env": {
-                "DEBUG":false
-            }
-        },
-        {
-            "type": "java",
-            "name": "VisitsServiceApplication",
-            "request": "launch",
-            "mainClass": "org.springframework.samples.petclinic.visits.VisitsServiceApplication",
-            "projectName": "spring-petclinic-visits-service",
-            "env": {
-                "DEBUG":false
+                "DEBUG": false,
+                // "SPRING.PROFILES.ACTIVE": "docker"
             }
         }
     ],
@@ -79,10 +120,33 @@
         {
             "name": "Start Supporting Service",
             "configurations": [
-                "ConfigServerApplication",
-                "DiscoveryServerApplication",
-                // "SpringBootAdminApplication",
-                // "ApiGatewayApplication"
+                "Discovery",
+                "Authentication",
+                "Admin",
+                "Gateway"
+            ],
+        },
+        {
+            "name": "Services",
+            "configurations": [
+                "Pet",
+                "Prop",
+                "Owner",
+                "Combat"
+            ]
+        },
+        {
+            "name": "Mini services",
+            "configurations": [
+                "Discovery",
+                "Gateway"
+            ]
+        },
+        {
+            "name": "Combat Server and Clients",
+            "configurations": [
+                "Combat",
+                "Owner"
             ],
             "stopAll": true
         }

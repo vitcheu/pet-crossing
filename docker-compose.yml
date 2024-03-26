@@ -1,98 +1,182 @@
-version: '3'
+version: "3"
 
 services:
   config-server:
-    image: springcommunity/spring-petclinic-config-server
+    image: docker.io/pet-microservices/config-server
     container_name: config-server
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768m
     healthcheck:
       test: ["CMD", "curl", "-I", "http://config-server:8888"]
       interval: 5s
       timeout: 5s
       retries: 10
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - ~/.ssh/:/root/.ssh/
+    networks:
+      - pet-app-network
     ports:
-     - 8888:8888
+      - 8888:8888
+    depends_on:
+      mysql-service:
+        condition: service_healthy
 
   discovery-server:
-    image: springcommunity/spring-petclinic-discovery-server
+    image: docker.io/pet-microservices/discovery-server
     container_name: discovery-server
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768m
     healthcheck:
       test: ["CMD", "curl", "-f", "http://discovery-server:8761"]
       interval: 5s
       timeout: 3s
       retries: 10
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       config-server:
         condition: service_healthy
+    networks:
+      - pet-app-network
     ports:
-     - 8761:8761
-
-  customers-service:
-    image: springcommunity/spring-petclinic-customers-service
-    container_name: customers-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-    - 8081:8081
-
-  visits-service:
-    image: springcommunity/spring-petclinic-visits-service
-    container_name: visits-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8082:8082
-
-  vets-service:
-    image: springcommunity/spring-petclinic-vets-service
-    container_name: vets-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8083:8083
+      - 8761:8761
 
   api-gateway:
-    image: springcommunity/spring-petclinic-api-gateway
-    container_name: api-gateway
+    image: docker.io/pet-microservices/gateway
+    container_name: gateway
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://api-gateway:8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - pet-app-network
+    ports:
+      - 8080:8080
+
+  owner-service:
+    image: docker.io/pet-microservices/owner-service
+    container_name: owner-service
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=mysql,docker,production
+      - SPRING_AMQP_DESERIALIZATION_TRUST_ALL=true
+      - CONFIG_SERVER_URL=http://config-server:8888
+    networks:
+      - pet-app-network
+    ports:
+      - 10030:10030
+
+  pet-service:
+    image: docker.io/pet-microservices/pet-service
+    container_name: pet-service
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=mysql,production,docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+    networks:
+      - pet-app-network
+    ports:
+      - 10090:10090
+
+  props-service:
+    image: docker.io/pet-microservices/prop-service
+    container_name: prop-service
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mysql-service:
+        condition: service_healthy
+    ports:
+      - 10060:10060
+    environment:
+      - SPRING_PROFILES_ACTIVE=mysql,production,docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+    networks:
+      - pet-app-network
+
+  combat-server:
+    image: docker.io/pet-microservices/combat-server
+    container_name: combat-server
+    deploy:
+      resources:
+        limits:
+          memory: 768m
     depends_on:
       config-server:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
     ports:
-     - 8080:8080
+      - 10020:10020
+    networks:
+      - pet-app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev,docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+
+  authentication-service:
+    image: docker.io/pet-microservices/authentication-service
+    container_name: authentication-service
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+    networks:
+      - pet-app-network
+    ports:
+      - 10050:10050
 
   tracing-server:
     image: openzipkin/zipkin
@@ -100,26 +184,69 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768m
     environment:
-    - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
+      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
     ports:
-     - 9411:9411
+      - 9411:9411
+    networks:
+      - pet-app-network
 
   admin-server:
-    image: springcommunity/spring-petclinic-admin-server
+    image: docker.io/pet-microservices/admin-server
     container_name: admin-server
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768m
     depends_on:
       config-server:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
     ports:
-     - 9090:9090
+      - 9090:9090
+    networks:
+      - pet-app-network
+
+  mysql-service:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - "D:/Desktop/config/envs/.env"
+    volumes:
+      - "./data/docker-data:/var/lib/mysql"
+      - "./data/v2/:/docker-entrypoint-initdb.d/"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - 3308:3306
+    networks:
+      - pet-app-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-server
+    ports:
+      - 15671:15671
+      - 15672:15672
+      - 5671:5671
+      - 5672:5672
+    env_file:
+      - "D:/Desktop/config/envs/.env"
+    networks:
+      - pet-app-network
+
+  redis:
+    image: redis:7.0
+    container_name: redis-server
+    ports:
+      - 6379:6379
+    networks:
+      - pet-app-network
 
   ## Grafana / Prometheus
 
@@ -131,7 +258,9 @@ services:
         limits:
           memory: 256M
     ports:
-    - 3000:3000
+      - 3000:3000
+    networks:
+      - pet-app-network
 
   prometheus-server:
     build: ./docker/prometheus
@@ -141,4 +270,9 @@ services:
         limits:
           memory: 256M
     ports:
-    - 9091:9090
+      - 9091:9090
+    networks:
+      - pet-app-network
+
+networks:
+  pet-app-network:
